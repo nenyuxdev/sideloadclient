@@ -8,7 +8,7 @@ Una herramienta CLI portátil desarrollada en Python diseñada específicamente 
 
 * **Portabilidad total:** Integra de forma nativa los binarios de `platform-tools` (`adb` y `fastboot`) para **Windows**, **Linux** y **macOS**.
 * **Flasheo versátil:**
-  * **Modo Sideload:** Compatible con archivos `.zip` (Custom ROMs, Kernels AnyKernel3, Magisk, etc.).
+  * **Modo Sideload:** Compatible con archivos `.zip` (Custom ROMs, Kernels AnyKernel etc.).
   * **Modo Fastboot:** Flasheo automático de imágenes `.img` en particiones clave (`boot`, `recovery`, `dtbo`, `dtb`, `vendor_boot`, `init_boot`, `vbmeta`).
 * **Detección inteligente de particiones (A/B):** Identifica automáticamente el slot activo (`_a` o `_b`) en dispositivos modernos y asigna la partición correspondiente según el nombre del archivo.
 * **Automatización de estados:** Detecta si el dispositivo está en modo normal, recovery o fastboot, ofreciendo la opción de reiniciarlo e ingresar al modo adecuado automáticamente.
