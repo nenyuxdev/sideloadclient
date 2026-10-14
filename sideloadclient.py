@@ -23,7 +23,7 @@ FASTBOOT = get_bin_path("fastboot")
 def main():
     if len(sys.argv) < 3:
         print("Usage: python sideloadclient.py <action> <file>")
-        print("Actions: sideload | fastboot")
+        print("Actions: 'sideload' or 'fastboot'")
         sys.exit(1)
 
     action = sys.argv[1].lower()
@@ -170,10 +170,22 @@ def main():
 
         if active_slot:
             partition = f"{base_part}_{active_slot}"
-            print(f"Active slot detected ({active_slot}). Flashing to {partition}...")
         else:
             partition = base_part
-            print(f"No A/B slots detected. Flashing to normal {partition} partition...")
+
+        if base_part == "recovery":
+            check_res = subprocess.run([FASTBOOT, "getvar", f"partition-size:{partition}"], capture_output=True, text=True)
+            output_check = check_res.stdout + check_res.stderr
+            if "FAILED" in output_check or "size: 0" in output_check:
+                base_part = "boot"
+                partition = f"boot_{active_slot}" if active_slot else "boot"
+                print(f"Notice: 'recovery' partition not found on this device. Redirecting to '{partition}'...")
+
+        if active_slot and "_" not in partition:
+            partition = f"{base_part}_{active_slot}"
+            print(f"Active slot detected ({active_slot}). Flashing to {partition}...")
+        else:
+            print(f"Flashing to {partition}...")
 
         print(f"Flashing {file_path} to {partition} via fastboot...")
         cmd = [FASTBOOT, "flash", partition, file_path]
