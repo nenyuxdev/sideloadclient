@@ -23,7 +23,7 @@ FASTBOOT = get_bin_path("fastboot")
 def main():
     if len(sys.argv) < 3:
         print("Usage: python sideloadclient.py <action> <file>")
-        print("Actions: 'sideload' or 'fastboot'")
+        print("Actions: Use 'sideload' or 'fastboot'")
         sys.exit(1)
 
     action = sys.argv[1].lower()
@@ -173,13 +173,20 @@ def main():
         else:
             partition = base_part
 
-        if base_part == "recovery":
+        fallback_map = {
+            "recovery": "boot",
+            "init_boot": "boot",
+            "vendor_boot": "boot"
+        }
+
+        if base_part in fallback_map:
             check_res = subprocess.run([FASTBOOT, "getvar", f"partition-size:{partition}"], capture_output=True, text=True)
             output_check = check_res.stdout + check_res.stderr
             if "FAILED" in output_check or "size: 0" in output_check:
-                base_part = "boot"
-                partition = f"boot_{active_slot}" if active_slot else "boot"
-                print(f"Notice: 'recovery' partition not found on this device. Redirecting to '{partition}'...")
+                old_part = partition
+                base_part = fallback_map[base_part]
+                partition = f"{base_part}_{active_slot}" if active_slot else base_part
+                print(f"Notice: Partition '{old_part}' not found. Redirecting to '{partition}'...")
 
         if active_slot and "_" not in partition:
             partition = f"{base_part}_{active_slot}"
